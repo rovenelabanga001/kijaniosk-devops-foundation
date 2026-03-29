@@ -1,0 +1,16 @@
+# === SYSTEMCTL ABUSE SCENARIOS ===
+
+# 1. Malicious Service Execution
+# If amina can run unrestricted systemctl, she could create or modify a service file
+# that executes arbitrary commands as root (e.g., reverse shell or privilege escalation).
+# Then run: systemctl start malicious.service → full root access.
+
+# 2. System Disruption / Denial of Service
+# amina could run:
+# systemctl mask ssh → disables SSH access
+# systemctl stop nginx → brings down production
+# systemctl daemon-reexec → reloads system in unsafe ways
+# This could cause downtime or lock out administrators.
+
+# === RESTRICTED POLICY ===
+# Only allow specific safe operations on specific services
