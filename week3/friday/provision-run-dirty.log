@@ -1,0 +1,149 @@
+[0;34m[22:10:02][0m Starting KijaniKiosk provisioning...
+[0;34m[22:10:02][0m ================================================
+[0;34m[22:10:02][0m PHASE 1: Prerequisites
+[0;32m[PASS][0m acl tools already installed
+[0;32m[PASS][0m sysstat already installed
+[0;32m[PASS][0m nginx 1.24.0 matches pinned version — skipping install
+[0;32m[PASS][0m nodejs v20 matches pinned version — skipping install
+[0;32m[PASS][0m Package holds confirmed: nginx nodejs
+[0;34m[22:10:02][0m PHASE 1 complete
+[0;34m[22:10:02][0m PHASE 2: Service Accounts
+[0;32m[PASS][0m Group kijanikiosk already exists — skipping
+[0;32m[PASS][0m kk-api already exists with correct shell — skipping
+[0;32m[PASS][0m kk-payments already exists with correct shell — skipping
+[0;32m[PASS][0m kk-logs already exists with correct shell — skipping
+[0;32m[PASS][0m kk-api already in kijanikiosk group — skipping
+[0;32m[PASS][0m kk-payments already in kijanikiosk group — skipping
+[0;32m[PASS][0m kk-logs already in kijanikiosk group — skipping
+[1;33m[WARN][0m kijanikiosk group contains extra members from lab work (rovenel-abanga, amina) — documented, not removed
+[0;34m[22:10:02][0m PHASE 2 complete
+[0;34m[22:10:02][0m PHASE 3: Directory Structure, Permissions, and ACLs
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/app — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/api — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/config — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/logs — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/payments — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/scripts — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/shared — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/shared/logs — skipping
+[0;32m[PASS][0m Directory exists: /opt/kijanikiosk/health — skipping
+[0;34m[22:10:02][0m Tightening world-writable directory permissions...
+[0;32m[PASS][0m Fixed /opt/kijanikiosk: 777 → 755
+[0;32m[PASS][0m Fixed /opt/kijanikiosk/app: 777 → 755
+[0;32m[PASS][0m Fixed /opt/kijanikiosk/scripts: 777 → 755
+[0;32m[PASS][0m Ownership set on all directories
+[0;32m[PASS][0m Permissions set on all directories
+[0;32m[PASS][0m ACLs set on shared/logs (access + default)
+[0;32m[PASS][0m ACLs set on config (access + default) — fixes missing default ACLs from audit
+[0;32m[PASS][0m ACLs set on health directory
+[0;32m[PASS][0m payments-api.env already exists — skipping
+[0;32m[PASS][0m db.env already exists — skipping
+[0;34m[22:10:02][0m PHASE 3 complete
+[0;34m[22:10:02][0m PHASE 4: systemd Unit Files
+[0;32m[PASS][0m kk-logs.service unit written
+[0;32m[PASS][0m kk-api.service unit written
+[0;32m[PASS][0m kk-payments.service unit written
+[0;32m[PASS][0m systemd daemon reloaded
+[0;32m[PASS][0m kk-logs.service enabled
+[0;32m[PASS][0m kk-api.service enabled
+[0;32m[PASS][0m kk-payments.service enabled
+[0;34m[22:10:03][0m PHASE 4 complete
+[0;34m[22:10:03][0m PHASE 5: Firewall
+[0;34m[22:10:03][0m Resetting ufw to clean baseline...
+[0;32m[PASS][0m ufw reset to baseline
+Default incoming policy changed to 'deny'
+(be sure to update your rules accordingly)
+Default outgoing policy changed to 'allow'
+(be sure to update your rules accordingly)
+[0;32m[PASS][0m Default policies set: deny incoming, allow outgoing
+Rules updated
+Rules updated (v6)
+[0;32m[PASS][0m SSH (22/tcp) allowed
+Rules updated
+Rules updated (v6)
+[0;32m[PASS][0m HTTP (80/tcp) allowed
+Rules updated
+Rules updated (v6)
+[0;32m[PASS][0m Port 3001 allowed on loopback (nginx proxy)
+Rules updated
+Rules updated (v6)
+[0;32m[PASS][0m Port 3001 denied on external interface (wlp0s20f3)
+Rules updated
+[0;32m[PASS][0m Port 3001 allowed from monitoring subnet 10.0.1.0/24
+[0;32m[PASS][0m ufw enabled
+[0;34m[22:10:06][0m PHASE 5 complete
+[0;34m[22:10:06][0m PHASE 6: Environment Files and Config Verification
+[0;32m[PASS][0m EnvironmentFile OK: /opt/kijanikiosk/config/payments-api.env (owner=root:kijanikiosk mode=640)
+[0;32m[PASS][0m kk-payments can read /opt/kijanikiosk/config/payments-api.env
+[0;32m[PASS][0m EnvironmentFile OK: /opt/kijanikiosk/config/db.env (owner=root:kijanikiosk mode=640)
+[0;32m[PASS][0m kk-api can read /opt/kijanikiosk/config/db.env
+[0;32m[PASS][0m EnvironmentFile OK: /opt/kijanikiosk/config/db.env (owner=root:kijanikiosk mode=640)
+[0;32m[PASS][0m kk-logs can read /opt/kijanikiosk/config/db.env
+[0;32m[PASS][0m kk-api.service EnvironmentFile exists: /opt/kijanikiosk/config/db.env
+[0;32m[PASS][0m kk-payments.service EnvironmentFile exists: /opt/kijanikiosk/config/payments-api.env
+[0;32m[PASS][0m kk-logs.service EnvironmentFile exists: /opt/kijanikiosk/config/db.env
+[0;32m[PASS][0m kk-payments.service correctly declares Wants=kk-api.service
+[0;32m[PASS][0m kk-payments.service correctly declares After=kk-api.service
+[0;34m[22:10:06][0m PHASE 6 complete
+[0;34m[22:10:06][0m PHASE 7: Journal Persistence and Log Rotation
+[0;32m[PASS][0m /var/log/journal already exists — skipping
+[0;32m[PASS][0m Journal size capped at 500MB (config: /etc/systemd/journald.conf.d/kijanikiosk.conf)
+[0;32m[PASS][0m journald restarted with new config
+[0;32m[PASS][0m Fixed /opt/kijanikiosk/shared permissions for logrotate
+[0;32m[PASS][0m Logrotate config written: /etc/logrotate.d/kijanikiosk
+[0;32m[PASS][0m logrotate --debug passed — config is valid
+[0;34m[22:10:06][0m PHASE 7 complete
+[0;34m[22:10:06][0m PHASE 8: Health Checks and Final Verification
+[0;34m[22:10:06][0m Checking service ports...
+[0;32m[PASS][0m Health check JSON written: /opt/kijanikiosk/health/last-provision.json
+[0;34m[22:10:06][0m Health status — kk-api: "down" | kk-payments: "down" | kk-logs: "down"
+[0;34m[22:10:06][0m Running final verification checks...
+[0;32m[PASS][0m nginx installed
+[0;32m[PASS][0m nodejs installed
+[0;32m[PASS][0m nginx held
+[0;32m[PASS][0m nodejs held
+[0;32m[PASS][0m kk-api account exists
+[0;32m[PASS][0m kk-payments account exists
+[0;32m[PASS][0m kk-logs account exists
+[0;32m[PASS][0m kk-api shell correct
+[0;32m[PASS][0m kijanikiosk group exists
+[0;32m[PASS][0m kk-api in kijanikiosk
+[0;32m[PASS][0m kk-payments in kijanikiosk
+[0;32m[PASS][0m kk-logs in kijanikiosk
+[0;32m[PASS][0m /opt/kijanikiosk is 755
+[0;32m[PASS][0m /opt/kijanikiosk/app is 755
+[0;32m[PASS][0m shared/logs has ACLs
+[0;32m[PASS][0m health directory exists
+[0;32m[PASS][0m config has default ACLs
+[0;32m[PASS][0m kk-api.service exists
+[0;32m[PASS][0m kk-payments.service exists
+[0;32m[PASS][0m kk-logs.service exists
+[0;32m[PASS][0m kk-api.service enabled
+[0;32m[PASS][0m kk-payments.service enabled
+[0;32m[PASS][0m kk-logs.service enabled
+[0;32m[PASS][0m kk-payments Wants kk-api
+[0;32m[PASS][0m kk-logs has ExecReload
+[0;32m[PASS][0m ufw active
+[0;32m[PASS][0m SSH rule present
+[0;32m[PASS][0m HTTP rule present
+[0;32m[PASS][0m port 3001 deny present
+[0;32m[PASS][0m loopback allow present
+[0;32m[PASS][0m payments-api.env exists
+[0;32m[PASS][0m db.env exists
+[0;32m[PASS][0m payments-api.env mode 640
+[0;32m[PASS][0m journal directory exists
+[0;32m[PASS][0m journald config exists
+[0;32m[PASS][0m logrotate config exists
+[0;32m[PASS][0m logrotate config valid
+[0;32m[PASS][0m health JSON exists
+[0;32m[PASS][0m health JSON mode 640
+[0;32m[PASS][0m health JSON has timestamp
+[0;34m[22:10:07][0m ================================================
+[0;34m[22:10:07][0m VERIFICATION SUMMARY
+[0;32mPASSED: 52[0m
+[0;31mFAILED: 0[0m
+[0;32mALL CHECKS PASSED — server is correctly provisioned[0m
+[0;34m[22:10:07][0m PHASE 8 complete
+[0;34m[22:10:07][0m ================================================
+[0;34m[22:10:07][0m Provisioning complete.
