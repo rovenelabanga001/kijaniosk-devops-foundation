@@ -1,0 +1,56 @@
+# KijaniKiosk Pre-Provisioning Audit
+# Date: 2026-03-29
+# Engineer: Rovenel Abanga
+
+## DIRTY CONDITIONS FOUND
+
+# 1. SERVICE ACCOUNTS: All three exist but kk-api uses /usr/bin/nologin
+#    while kk-payments and kk-logs use /usr/sbin/nologin.
+#    Script will normalize kk-api shell path.
+
+# 2. DIRECTORY PERMISSIONS: Three directories are world-writable (777):
+#    /opt/kijanikiosk/ (root)
+#    /opt/kijanikiosk/app/
+#    /opt/kijanikiosk/scripts/
+#    Script will tighten to 755 in Phase 3.
+
+# 3. GROUP MEMBERSHIP: kijanikiosk group contains extra members
+#    (rovenel-abanga, amina) from manual lab work.
+#    Script will not remove them — documents presence only.
+
+# 4. CONFIG ACLs: /opt/kijanikiosk/config/ has no default ACLs.
+#    New files created there won't inherit group permissions.
+#    Script will add default ACLs in Phase 3.
+
+# 5. SYSTEMD UNITS: Only kk-api.service exists and is enabled.
+#    kk-payments.service and kk-logs.service are missing entirely.
+#    Script will create all three in Phase 4.
+
+# 6. UFW: Clean ruleset — only SSH (22) and HTTP (80) allowed.
+#    No leftover deny rules from Thursday. No reset needed.
+
+# 7. PACKAGE HOLDS: nginx and nodejs are correctly held.
+#    Script will verify installed versions match pinned versions
+#    before attempting install.
+
+# 8. JOURNAL: 510.2M on disk. /var/log/journal/ may not exist.
+#    Script will create it and cap at 500MB in Phase 7.
+
+# 9. LOGS DIRECTORY: 8.0K — clean after Thursday's remediation.
+#    Logrotate config exists with correct daily/14-day settings.
+
+## RAW AUDIT OUTPUT BELOW
+
+{
+  getent passwd kk-api kk-payments kk-logs
+  getent group kijanikiosk
+  ls -la /opt/kijanikiosk/
+  getfacl /opt/kijanikiosk/shared/logs/ 2>/dev/null
+  getfacl /opt/kijanikiosk/config/ 2>/dev/null
+  sudo ufw status numbered
+  apt-mark showhold
+  systemctl list-unit-files | grep kk-
+  sudo systemd-analyze security kk-api.service 2>/dev/null
+  du -sh /opt/kijanikiosk/shared/logs/
+  journalctl --disk-usage
+} >> ~/devOps13/week3/friday/pre-provisioning-audit.txt
