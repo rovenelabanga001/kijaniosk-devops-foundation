@@ -1,0 +1,22 @@
+# Terraform state and sensitive files
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*tfplan
+/.terraform.lock.hcl
+terraform/terraform.tfvars
+
+# Ansible sensitive files
+./*.pem
+./*.key
+./vault_pass.txt
+
+# Logs
+*.log
+!pipeline-run1-terraform.log
+!pipeline-run1-ansible.log
+!pipeline-run2-terraform.log
+!pipeline-run2-ansible.log
+
+# OS files
+.DS_Store

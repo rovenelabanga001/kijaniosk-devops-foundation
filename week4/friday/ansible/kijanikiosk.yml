@@ -1,0 +1,230 @@
+---
+- name: Configure KijaniKiosk servers
+  hosts: kijanikiosk
+  become: true
+  become_method: sudo
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+  tasks:
+    # ── Phase 1: Packages ──────────────────────────────────────────────────
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      changed_when: false
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - htop
+          - sysstat
+          - acl
+        state: present
+
+    - name: Ensure nginx is running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Ensure sysstat is running
+      ansible.builtin.service:
+        name: sysstat
+        state: started
+        enabled: true
+
+    # ── Phase 2: Service accounts ──────────────────────────────────────────
+    - name: Create kijanikiosk system group
+      ansible.builtin.group:
+        name: kijanikiosk
+        system: true
+        state: present
+
+    - name: Create service accounts
+      ansible.builtin.user:
+        name: "{{ item }}"
+        group: kijanikiosk
+        system: true
+        shell: /usr/sbin/nologin
+        create_home: false
+        state: present
+      loop:
+        - kk-api
+        - kk-payments
+        - kk-logs
+
+    # ── Phase 3: Directory structure ───────────────────────────────────────
+    - name: Create KijaniKiosk directory tree
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner }}"
+        group: kijanikiosk
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /opt/kijanikiosk,          owner: root,        mode: "0755" }
+        - { path: /opt/kijanikiosk/api,      owner: kk-api,      mode: "0750" }
+        - { path: /opt/kijanikiosk/payments, owner: kk-payments, mode: "0750" }
+        - { path: /opt/kijanikiosk/logs,     owner: kk-logs,     mode: "0750" }
+        - { path: /opt/kijanikiosk/shared,   owner: root,        mode: "0755" }
+        - { path: /opt/kijanikiosk/config,   owner: root,        mode: "0750" }
+        - { path: /opt/kijanikiosk/health,   owner: root,        mode: "0750" }
+
+    - name: Create shared logs directory with SGID
+      ansible.builtin.file:
+        path: /opt/kijanikiosk/shared/logs
+        state: directory
+        owner: kk-logs
+        group: kijanikiosk
+        mode: "2750"
+      changed_when: false
+
+    - name: Set ACLs on shared logs directory
+      ansible.posix.acl:
+        path: /opt/kijanikiosk/shared/logs
+        entity: "{{ item.entity }}"
+        etype: user
+        permissions: "{{ item.perms }}"
+        state: present
+      loop:
+        - { entity: kk-api, perms: rwx }
+        - { entity: kk-payments, perms: rx }
+        - { entity: kk-logs, perms: rwx }
+      changed_when: false
+
+    - name: Set default ACLs on shared logs directory
+      ansible.posix.acl:
+        path: /opt/kijanikiosk/shared/logs
+        entity: "{{ item.entity }}"
+        etype: user
+        permissions: "{{ item.perms }}"
+        default: true
+        state: present
+      loop:
+        - { entity: kk-api, perms: rw }
+        - { entity: kk-payments, perms: r }
+        - { entity: kk-logs, perms: rw }
+      changed_when: false
+
+    # ── Phase 4: systemd unit files ────────────────────────────────────────
+    - name: Deploy systemd unit file
+      ansible.builtin.template:
+        src: templates/service.unit.j2
+        dest: "/etc/systemd/system/{{ service_name }}.service"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload systemd
+
+    - name: Enable service
+      ansible.builtin.systemd:
+        name: "{{ service_name }}.service"
+        enabled: true
+        daemon_reload: true
+
+    # ── Phase 5: Firewall ──────────────────────────────────────────────────
+    - name: Install ufw
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+
+    - name: Set ufw default deny incoming
+      community.general.ufw:
+        default: deny
+        direction: incoming
+
+    - name: Set ufw default allow outgoing
+      community.general.ufw:
+        default: allow
+        direction: outgoing
+
+    - name: Allow SSH
+      community.general.ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+        comment: "SSH: remote administration"
+
+    - name: Allow HTTP
+      community.general.ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+        comment: "HTTP: nginx reverse proxy"
+
+    - name: Allow service port on loopback
+      community.general.ufw:
+        rule: allow
+        port: "{{ service_port }}"
+        proto: tcp
+        interface: lo
+        direction: in
+        comment: "{{ service_name }}: loopback access"
+
+    - name: Enable ufw
+      community.general.ufw:
+        state: enabled
+
+    # ── Phase 6: Journal persistence ───────────────────────────────────────
+    - name: Create persistent journal directory
+      ansible.builtin.file:
+        path: /var/log/journal
+        state: directory
+        owner: root
+        group: systemd-journal
+        mode: "2755"
+
+    - name: Create journald config directory
+      ansible.builtin.file:
+        path: /etc/systemd/journald.conf.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Configure journald size cap
+      ansible.builtin.copy:
+        dest: /etc/systemd/journald.conf.d/kijanikiosk.conf
+        content: |
+          [Journal]
+          SystemMaxUse=500M
+          SystemKeepFree=100M
+          MaxRetentionSec=30day
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload systemd
+
+    # ── Phase 7: Logrotate ─────────────────────────────────────────────────
+    - name: Configure logrotate for kijanikiosk
+      ansible.builtin.copy:
+        dest: /etc/logrotate.d/kijanikiosk
+        content: |
+          /opt/kijanikiosk/shared/logs/*.log {
+              su kk-logs kk-logs
+              daily
+              rotate 14
+              compress
+              delaycompress
+              missingok
+              notifempty
+              create 640 kk-logs kijanikiosk
+              sharedscripts
+              postrotate
+                  systemctl reload kk-logs.service 2>/dev/null || true
+              endscript
+          }
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Verify logrotate config is valid
+      ansible.builtin.command:
+        cmd: logrotate --debug /etc/logrotate.d/kijanikiosk
+      changed_when: false
+      ignore_errors: true

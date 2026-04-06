@@ -1,0 +1,6 @@
+service_group: kijanikiosk
+base_dir: /opt/kijanikiosk
+log_dir: /opt/kijanikiosk/shared/logs
+config_dir: /opt/kijanikiosk/config
+ansible_ssh_private_key_file: ~/.ssh/kijanikiosk-key
+ansible_user: rovenelabanga2001

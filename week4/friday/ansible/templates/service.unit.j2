@@ -1,0 +1,49 @@
+[Unit]
+Description=KijaniKiosk {{ service_name }} Service
+After=network.target
+{% if service_name == "kk-payments" %}
+After=kk-api.service
+Wants=kk-api.service
+{% endif %}
+
+[Service]
+Type=simple
+User={{ service_name }}
+Group={{ service_group }}
+WorkingDirectory={{ service_dir }}
+ExecStart={{ service_dir }}/server --port {{ service_port }}
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={{ service_dir }} {{ log_dir }}
+EnvironmentFile={{ config_dir }}/{{ service_name }}.env
+ExecReload=/bin/kill -HUP $MAINPID
+{% if service_name == "kk-payments" %}
+PrivateUsers=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+ProtectProc=invisible
+ProcSubset=pid
+LockPersonality=true
+RestrictNamespaces=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RemoveIPC=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+IPAddressDeny=any
+IPAddressAllow=localhost
+UMask=0077
+CapabilityBoundingSet=
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target
