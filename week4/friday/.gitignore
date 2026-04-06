@@ -1,15 +1,15 @@
 # Terraform state and sensitive files
-**/.terraform/
-**/*.tfstate
-**/*.tfstate.backup
-**/*.tfplan
-**/.terraform.lock.hcl
-**/terraform.tfvars
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*tfplan
+/.terraform.lock.hcl
+terraform/terraform.tfvars
 
 # Ansible sensitive files
-**/*.pem
-**/*.key
-**/vault_pass.txt
+./*.pem
+./*.key
+./vault_pass.txt
 
 # Logs
 *.log
