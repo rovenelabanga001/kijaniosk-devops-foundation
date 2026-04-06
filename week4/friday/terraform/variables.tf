@@ -46,4 +46,5 @@ variable "ssh_pub_key_file" {
 variable "ssh_source_ip" {
   description = "Engineer IP address allowed to SSH — format x.x.x.x/32"
   type        = string
+
 }
