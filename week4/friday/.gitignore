@@ -13,6 +13,10 @@ terraform/terraform.tfvars
 
 # Logs
 *.log
+!pipeline-run1-terraform.log
+!pipeline-run1-ansible.log
+!pipeline-run2-terraform.log
+!pipeline-run2-ansible.log
 
 # OS files
 .DS_Store

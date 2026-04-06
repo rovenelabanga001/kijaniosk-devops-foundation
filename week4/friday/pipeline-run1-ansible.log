@@ -1,0 +1,180 @@
+
+PLAY [Configure KijaniKiosk servers] *******************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [logs-staging]
+ok: [payments-staging]
+ok: [api-staging]
+
+TASK [Update apt cache] ********************************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Install required packages] ***********************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Ensure nginx is running] *************************************************
+ok: [logs-staging]
+ok: [payments-staging]
+ok: [api-staging]
+
+TASK [Ensure sysstat is running] ***********************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Create kijanikiosk system group] *****************************************
+ok: [payments-staging]
+ok: [api-staging]
+ok: [logs-staging]
+
+TASK [Create service accounts] *************************************************
+ok: [logs-staging] => (item=kk-api)
+ok: [api-staging] => (item=kk-api)
+ok: [payments-staging] => (item=kk-api)
+ok: [logs-staging] => (item=kk-payments)
+ok: [api-staging] => (item=kk-payments)
+ok: [payments-staging] => (item=kk-payments)
+ok: [payments-staging] => (item=kk-logs)
+ok: [api-staging] => (item=kk-logs)
+ok: [logs-staging] => (item=kk-logs)
+
+TASK [Create KijaniKiosk directory tree] ***************************************
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk', 'owner': 'root', 'mode': '0755'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk', 'owner': 'root', 'mode': '0755'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk', 'owner': 'root', 'mode': '0755'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/api', 'owner': 'kk-api', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/api', 'owner': 'kk-api', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/api', 'owner': 'kk-api', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/payments', 'owner': 'kk-payments', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/payments', 'owner': 'kk-payments', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/payments', 'owner': 'kk-payments', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/logs', 'owner': 'kk-logs', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/logs', 'owner': 'kk-logs', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/logs', 'owner': 'kk-logs', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/shared', 'owner': 'root', 'mode': '0755'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/shared', 'owner': 'root', 'mode': '0755'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/shared', 'owner': 'root', 'mode': '0755'})
+changed: [logs-staging] => (item={'path': '/opt/kijanikiosk/shared/logs', 'owner': 'kk-logs', 'mode': '2750'})
+changed: [api-staging] => (item={'path': '/opt/kijanikiosk/shared/logs', 'owner': 'kk-logs', 'mode': '2750'})
+changed: [payments-staging] => (item={'path': '/opt/kijanikiosk/shared/logs', 'owner': 'kk-logs', 'mode': '2750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/config', 'owner': 'root', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/config', 'owner': 'root', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/config', 'owner': 'root', 'mode': '0750'})
+ok: [logs-staging] => (item={'path': '/opt/kijanikiosk/health', 'owner': 'root', 'mode': '0750'})
+ok: [payments-staging] => (item={'path': '/opt/kijanikiosk/health', 'owner': 'root', 'mode': '0750'})
+ok: [api-staging] => (item={'path': '/opt/kijanikiosk/health', 'owner': 'root', 'mode': '0750'})
+
+TASK [Set ACLs on shared logs directory] ***************************************
+[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
+[DEPRECATION WARNING]: Importing 'to_native' from 'ansible.module_utils._text' is deprecated. This feature will be removed from ansible-core version 2.24. Use ansible.module_utils.common.text.converters instead.
+changed: [api-staging] => (item={'entity': 'kk-api', 'perms': 'rwx'})
+changed: [payments-staging] => (item={'entity': 'kk-api', 'perms': 'rwx'})
+changed: [logs-staging] => (item={'entity': 'kk-api', 'perms': 'rwx'})
+ok: [api-staging] => (item={'entity': 'kk-payments', 'perms': 'rx'})
+ok: [payments-staging] => (item={'entity': 'kk-payments', 'perms': 'rx'})
+ok: [logs-staging] => (item={'entity': 'kk-payments', 'perms': 'rx'})
+ok: [api-staging] => (item={'entity': 'kk-logs', 'perms': 'rwx'})
+ok: [payments-staging] => (item={'entity': 'kk-logs', 'perms': 'rwx'})
+ok: [logs-staging] => (item={'entity': 'kk-logs', 'perms': 'rwx'})
+
+TASK [Set default ACLs on shared logs directory] *******************************
+ok: [api-staging] => (item={'entity': 'kk-api', 'perms': 'rw'})
+ok: [payments-staging] => (item={'entity': 'kk-api', 'perms': 'rw'})
+ok: [logs-staging] => (item={'entity': 'kk-api', 'perms': 'rw'})
+ok: [api-staging] => (item={'entity': 'kk-payments', 'perms': 'r'})
+ok: [payments-staging] => (item={'entity': 'kk-payments', 'perms': 'r'})
+ok: [logs-staging] => (item={'entity': 'kk-payments', 'perms': 'r'})
+ok: [api-staging] => (item={'entity': 'kk-logs', 'perms': 'rw'})
+ok: [logs-staging] => (item={'entity': 'kk-logs', 'perms': 'rw'})
+ok: [payments-staging] => (item={'entity': 'kk-logs', 'perms': 'rw'})
+
+TASK [Deploy systemd unit file] ************************************************
+ok: [payments-staging]
+ok: [api-staging]
+ok: [logs-staging]
+
+TASK [Enable service] **********************************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Install ufw] *************************************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Set ufw default deny incoming] *******************************************
+ok: [payments-staging]
+ok: [logs-staging]
+ok: [api-staging]
+
+TASK [Set ufw default allow outgoing] ******************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Allow SSH] ***************************************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Allow HTTP] **************************************************************
+ok: [api-staging]
+ok: [logs-staging]
+ok: [payments-staging]
+
+TASK [Allow service port on loopback] ******************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Enable ufw] **************************************************************
+ok: [logs-staging]
+ok: [api-staging]
+ok: [payments-staging]
+
+TASK [Create persistent journal directory] *************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Create journald config directory] ****************************************
+ok: [api-staging]
+ok: [payments-staging]
+ok: [logs-staging]
+
+TASK [Configure journald size cap] *********************************************
+ok: [payments-staging]
+ok: [api-staging]
+ok: [logs-staging]
+
+TASK [Configure logrotate for kijanikiosk] *************************************
+ok: [logs-staging]
+ok: [payments-staging]
+ok: [api-staging]
+
+TASK [Verify logrotate config is valid] ****************************************
+[ERROR]: Task failed: Module failed: non-zero return code
+Origin: /home/rovenel-abanga/devOps13/kijaniosk-devops-foundation/week4/friday/ansible/kijanikiosk.yml:215:7
+
+213         mode: "0644"
+214
+215     - name: Verify logrotate config is valid
+          ^ column 7
+
+fatal: [api-staging]: FAILED! => {"changed": false, "cmd": ["logrotate", "--debug", "/etc/logrotate.d/kijanikiosk"], "delta": "0:00:00.093927", "end": "2026-04-06 07:40:16.887968", "msg": "non-zero return code", "rc": 1, "start": "2026-04-06 07:40:16.794041", "stderr": "WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.\n\nreading config file /etc/logrotate.d/kijanikiosk\nerror: /etc/logrotate.d/kijanikiosk:2 unknown group 'kk-logs'\nerror: found error in /opt/kijanikiosk/shared/logs/*.log , skipping\nremoving last 1 log configs\nReading state from file: /var/lib/logrotate/status\nAllocating hash table for state file, size 64 entries\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\n\nHandling 0 logs", "stderr_lines": ["WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.", "", "reading config file /etc/logrotate.d/kijanikiosk", "error: /etc/logrotate.d/kijanikiosk:2 unknown group 'kk-logs'", "error: found error in /opt/kijanikiosk/shared/logs/*.log , skipping", "removing last 1 log configs", "Reading state from file: /var/lib/logrotate/status", "Allocating hash table for state file, size 64 entries", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "", "Handling 0 logs"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [logs-staging]: FAILED! => {"changed": false, "cmd": ["logrotate", "--debug", "/etc/logrotate.d/kijanikiosk"], "delta": "0:00:00.012708", "end": "2026-04-06 07:40:16.900383", "msg": "non-zero return code", "rc": 1, "start": "2026-04-06 07:40:16.887675", "stderr": "WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.\n\nreading config file /etc/logrotate.d/kijanikiosk\nerror: /etc/logrotate.d/kijanikiosk:2 unknown group 'kk-logs'\nerror: found error in /opt/kijanikiosk/shared/logs/*.log , skipping\nremoving last 1 log configs\nReading state from file: /var/lib/logrotate/status\nAllocating hash table for state file, size 64 entries\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\n\nHandling 0 logs", "stderr_lines": ["WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.", "", "reading config file /etc/logrotate.d/kijanikiosk", "error: /etc/logrotate.d/kijanikiosk:2 unknown group 'kk-logs'", "error: found error in /opt/kijanikiosk/shared/logs/*.log , skipping", "removing last 1 log configs", "Reading state from file: /var/lib/logrotate/status", "Allocating hash table for state file, size 64 entries", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "", "Handling 0 logs"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [payments-staging]: FAILED! => {"changed": false, "cmd": ["logrotate", "--debug", "/etc/logrotate.d/kijanikiosk"], "delta": "0:00:00.008765", "end": "2026-04-06 07:40:16.959280", "msg": "non-zero return code", "rc": 1, "start": "2026-04-06 07:40:16.950515", "stderr": "WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.\n\nreading config file /etc/logrotate.d/kijanikiosk\nerror: /etc/logrotate.d/kijanikiosk:2 unknown group 'kk-logs'\nerror: found error in /opt/kijanikiosk/shared/logs/*.log , skipping\nremoving last 1 log configs\nReading state from file: /var/lib/logrotate/status\nAllocating hash table for state file, size 64 entries\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\nCreating new state\n\nHandling 0 logs", "stderr_lines": ["WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.", "", "reading config file /etc/logrotate.d/kijanikiosk", "error: /etc/logrotate.d/kijanikiosk:2 unknown group 'kk-logs'", "error: found error in /opt/kijanikiosk/shared/logs/*.log , skipping", "removing last 1 log configs", "Reading state from file: /var/lib/logrotate/status", "Allocating hash table for state file, size 64 entries", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "Creating new state", "", "Handling 0 logs"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+PLAY RECAP *********************************************************************
+api-staging                : ok=24   changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+logs-staging               : ok=24   changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+payments-staging           : ok=24   changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+
