@@ -1,0 +1,12 @@
+[0m[1mdata.google_compute_image.ubuntu_22_04: Reading...[0m[0m
+[0m[1mgoogle_compute_firewall.allow_http: Refreshing state... [id=projects/kijanikiosk/global/firewalls/allow-http-kijanikiosk-friday][0m
+[0m[1mgoogle_compute_firewall.allow_ssh: Refreshing state... [id=projects/kijanikiosk/global/firewalls/allow-ssh-kijanikiosk-friday][0m
+[0m[1mdata.google_compute_image.ubuntu_22_04: Read complete after 1s [id=projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20260313][0m
+[0m[1mmodule.app_servers["logs"].google_compute_instance.this: Refreshing state... [id=projects/kijanikiosk/zones/europe-west1-b/instances/kijanikiosk-logs-staging][0m
+[0m[1mmodule.app_servers["payments"].google_compute_instance.this: Refreshing state... [id=projects/kijanikiosk/zones/europe-west1-b/instances/kijanikiosk-payments-staging][0m
+[0m[1mmodule.app_servers["api"].google_compute_instance.this: Refreshing state... [id=projects/kijanikiosk/zones/europe-west1-b/instances/kijanikiosk-api-staging][0m
+
+[0m[1m[32mNo changes.[0m[1m Your infrastructure matches the configuration.[0m
+
+[0mTerraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
