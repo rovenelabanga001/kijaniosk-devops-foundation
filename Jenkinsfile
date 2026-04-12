@@ -45,9 +45,11 @@ pipeline {
 
         stage ('Archive') {
             steps {
-                archiveArtifacts artifacts: "${BUILD_DIR}/**",
+                archiveArtifacts (
+                                 artifacts: "${BUILD_DIR}/**",
                                  fingerprint: true
                                  allowEmptyArchive: false
+                                 )
             }
         }
     }
