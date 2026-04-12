@@ -22,10 +22,13 @@ pipeline {
                 echo "Verifying build output..."
                 sh '''
                     set -e
-                    test -d "${BUILD_DIR}" || {echo "ERROR: build directory not found: ${BUILD_DIR}"; exit 1; }
-                    echo "Build output: $(ls ${BUILD_DIR} | wc -1) files in ${BUILD_DIR}/"
-                    ls -lh "${BUILD_DIR}/"
-                ''' 
+                    if [ ! -d "payments/dist" ]; then
+                        echo "ERROR: build directory not found"
+                        exit 1
+                    fi
+                    echo "Build output: $(ls payments/dist | wc -l) files in payments/dist/"
+                    ls -lh payments/dist/
+                '''
             }
         }
 
