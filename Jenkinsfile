@@ -1,10 +1,9 @@
 pipeline {
     agent any
-
     environment {
-        NODE_ENV  = 'test'
-        BUILD_DIR = 'dist'
-        APP_NAME  = 'kijanikiosk-payments'
+        NODE_ENV = 'test'
+        BUILD_DIR = 'payments/dist'
+        APP_NAME = 'kijanikiosk-payments'
     }
 
     options {
@@ -14,43 +13,54 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage ('Build') {
             steps {
-                echo "Installing dependencies for ${APP_NAME}.."
-                sh 'npm ci'
-
+                echo "Installing dependencies for ${APP_NAME}..."
+                sh 'cd payments && npm ci'
                 echo "Building application..."
-                sh 'npm run build'
-
+                sh 'cd payments && npm run build'
                 echo "Verifying build output..."
                 sh '''
-                        set -e
-                        test -d "${BUILD_DIR}" || { echo "ERROR: build directory not found"; exit 1; }
-                        echo "Build output: $(ls ${BUILD_DIR} | wc -l) files in ${BUILD_DIR}/"
-                '''
+                    set -e
+                    test -d "${BUILD_DIR}" || {echo "ERROR: build directory not found: ${BUILD_DIR}"; exit 1; }
+                    echo "Build output: $(ls ${BUILD_DIR} | wc -1) files in ${BUILD_DIR}/"
+                    ls -lh "${BUILD_DIR}/"
+                ''' 
             }
         }
-        stage('Test') {
-            steps {
-                echo "Test stage: TODO"
+
+        stage ('Test') {
+           steps {
+            sh '''
+                set -e
+                cd payments && npm test
+            '''
+           }
+           post {
+            always {
+                junit allowEmptyResults: true, testResults: '***/test-results/*.xml'
             }
+           }
         }
-        stage('Archive') {
+
+        stage ('Archive') {
             steps {
-                echo "Archive stage: TODO"
+                archiveArtifacts artifacts: "${BUILD_DIR}/**",
+                                 fingerprint: true
+                                 allowEmptyArchive: false
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline succeeded: ${APP_NAME} build ${BUILD_NUMBER}"
+            echo "SUCCESS: ${APP_NAME} build #${BUILD_NUMBER} completed, Artifact: ${BUILD_URL}artifact/${BUILD_DIR}/"
         }
         failure {
-            echo "Pipeline FAILED: ${APP_NAME} build ${BUILD_NUMBER} - check logs"
+            echo "FAILURE: ${APP_NAME} build #${BUILD_NUMBER} failed - check the stage log above for details"
         }
         always {
-            echo "Build URL: ${BUILD_URL}"
+            cleanWs()
         }
     }
 }
