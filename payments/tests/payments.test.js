@@ -41,4 +41,8 @@ describe('generateReceipt', () => {
   test('throws for invalid transaction', () => {
     expect(() => generateReceipt(null)).toThrow('Valid transaction required');
   });
+
+  test('ci-pipeline-verification: deliberate failure', () => {
+    expect(true).toBe(false);  // Always fails
+});
 });
