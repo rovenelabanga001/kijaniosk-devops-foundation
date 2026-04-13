@@ -51,6 +51,17 @@ pipeline {
         archiveArtifacts artifacts: "${BUILD_DIR}/**", fingerprint: true, allowEmptyArchive: false
     }
 }
+        stage('Credential Test') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-credentials',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+                    sh 'echo "User: ${NEXUS_USER} Pass: ${NEXUS_PASS}"'
+                }
+            }
+}
     }
 
     post {
