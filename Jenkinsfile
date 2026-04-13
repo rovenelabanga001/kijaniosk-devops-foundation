@@ -78,24 +78,22 @@ pipeline {
                         set -e
 
                         # Generate base64 token from credentials
-                        NEXUS_TOKEN=$(echo -n "${NEXUS_USER}: ${NEXUS_PASS}" | base64)
+                        NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
 
-                        #Write .npmrc with registry URL and auth token
-                        cat > payments/.npmrc << EOF
-                        registry=http://nexus:8081/repository/npm-kijanikiosk/
-                        //nexus:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}
-                        //nexus:8081/repository/npm-kijanikiosk/:always-auth=true
-                        //nexus:8081/repository/npm-kijanikiosk/:email=admin@kijanikiosk.com
-                        EOF
+                        # Write .npmrc using echo to avoid heredoc indentation issues
+                        echo "registry=http://nexus:8081/repository/npm-kijanikiosk/" > payments/.npmrc
+                        echo "//nexus:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}" >> payments/.npmrc
+                        echo "//nexus:8081/repository/npm-kijanikiosk/:always-auth=true" >> payments/.npmrc
+                        echo "//nexus:8081/repository/npm-kijanikiosk/:email=admin@kijanikiosk.com" >> payments/.npmrc
 
                         # Update package.json version to ARTIFACT_VERSION
                         cd payments
                         npm version ${ARTIFACT_VERSION} --no-git-tag-version --allow-same-version
 
-                        #Publish to Nexus
-                        npm publish --registry http://172.18.0.3:8081/repository/npm-kijanikiosk/
+                        # Publish to Nexus
+                        npm publish --registry http://nexus:8081/repository/npm-kijanikiosk/
 
-                        #Delete .npmrc immediately after publish
+                        # Delete .npmrc immediately after publish
                         rm -f .npmrc
                     '''
                 }
