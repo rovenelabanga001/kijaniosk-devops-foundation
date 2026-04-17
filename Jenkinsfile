@@ -1,13 +1,16 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:20-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
     environment {
-        NODE_ENV = 'test'
-        BUILD_DIR = 'payments/dist'
-        APP_NAME = 'kijanikiosk-payments'
-        PKG_VERSION = sh(script: "node -p \"require('./payments/package.json').version\"", returnStdout: true).trim()
-        GIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout:true).trim()
-        ARTIFACT_VERSION = "${PKG_VERSION}-${GIT_SHORT}"
-        NEXUS_URL = 'http://nexus:8081/repository/npm-kijanikiosk'
+        NODE_ENV         = 'test'
+        BUILD_DIR        = 'payments/dist'
+        APP_NAME         = 'kijanikiosk-payments'
+        NEXUS_URL        = 'http://nexus:8081/repository/npm-kijanikiosk'
     }
 
     options {
@@ -17,12 +20,21 @@ pipeline {
     }
 
     stages {
-        stage ('Build') {
+        stage('Build') {
             steps {
-                echo "Installing dependencies for ${APP_NAME}..."
+                echo "Installing git..."
+                sh 'apk add --no-cache git'
+
+                script {
+                    env.PKG_VERSION = sh(script: "node -p \"require('./payments/package.json').version\"", returnStdout: true).trim()
+                    env.GIT_SHORT   = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
+                }
+
+                echo "Building ${APP_NAME} version ${ARTIFACT_VERSION}..."
                 sh 'cd payments && npm ci'
-                echo "Building application..."
                 sh 'cd payments && npm run build'
+
                 echo "Verifying build output..."
                 sh '''
                     set -e
@@ -36,38 +48,27 @@ pipeline {
             }
         }
 
-        stage ('Test') {
-           steps {
-            sh '''
-                set -e
-                cd payments && npm test
-            '''
-           }
-           post {
-            always {
-                junit allowEmptyResults: true, testResults: '***/test-results/*.xml'
+        stage('Test') {
+            steps {
+                sh '''
+                    set -e
+                    cd payments && npm test
+                '''
             }
-           }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'test-results/*.xml'
+                }
+            }
         }
 
         stage('Archive') {
-    steps {
-        archiveArtifacts artifacts: "${BUILD_DIR}/**", fingerprint: true, allowEmptyArchive: false
-    }
-}
-//         stage('Credential Test') {
-//             steps {
-//                 withCredentials([usernamePassword(
-//                     credentialsId: 'nexus-credentials',
-//                     usernameVariable: 'NEXUS_USER',
-//                     passwordVariable: 'NEXUS_PASS'
-//                 )]) {
-//                     sh 'echo "User: ${NEXUS_USER} Pass: ${NEXUS_PASS}"'
-//                 }
-//             }
-// }
+            steps {
+                archiveArtifacts artifacts: "${BUILD_DIR}/**", fingerprint: true, allowEmptyArchive: false
+            }
+        }
 
-        stage ('Publish'){
+        stage('Publish') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'nexus-credentials',
@@ -80,7 +81,7 @@ pipeline {
                         # Generate base64 token from credentials
                         NEXUS_TOKEN=$(echo -n "${NEXUS_USER}:${NEXUS_PASS}" | base64)
 
-                        # Write .npmrc using echo to avoid heredoc indentation issues
+                        # Write .npmrc using echo to avoid heredoc issues
                         echo "registry=http://nexus:8081/repository/npm-kijanikiosk/" > payments/.npmrc
                         echo "//nexus:8081/repository/npm-kijanikiosk/:_auth=${NEXUS_TOKEN}" >> payments/.npmrc
                         echo "//nexus:8081/repository/npm-kijanikiosk/:always-auth=true" >> payments/.npmrc
