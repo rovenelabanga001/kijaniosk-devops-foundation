@@ -21,7 +21,6 @@ pipeline {
     }
 
     stages {
-       stages {
         stage('Build') {
             steps {
                 script {
