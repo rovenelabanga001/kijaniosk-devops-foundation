@@ -1,10 +1,10 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20-alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-            reuseNode true
-        }
+   agent {
+    docker {
+        image 'node:20'
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
+    }
+}
     }
 
     environment {
@@ -21,20 +21,17 @@ pipeline {
     }
 
     stages {
-       stage('Build') {
+       stages {
+        stage('Build') {
             steps {
-                sh 'apk add --no-cache git --allow-untrusted || true'
-                
                 script {
                     env.PKG_VERSION      = sh(script: "node -p \"require('./payments/package.json').version\"", returnStdout: true).trim()
                     env.GIT_SHORT        = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
                 }
-                
                 echo "Building ${APP_NAME} version ${ARTIFACT_VERSION}..."
                 sh 'cd payments && npm ci'
                 sh 'cd payments && npm run build'
-
                 echo "Verifying build output..."
                 sh '''
                     set -e
@@ -46,6 +43,7 @@ pipeline {
                     ls -lh payments/dist/
                 '''
             }
+        }
 }
 
         stage('Test') {
