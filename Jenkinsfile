@@ -1,17 +1,16 @@
 pipeline {
-   agent {
-    docker {
-        image 'node:20'
-        args '-v /var/run/docker.sock:/var/run/docker.sock --network devops'
+    agent {
+        docker {
+            image 'node:20'
+            args '-v /var/run/docker.sock:/var/run/docker.sock --network devops'
+        }
     }
 
-}
-
     environment {
-        NODE_ENV         = 'test'
-        BUILD_DIR        = 'payments/dist'
-        APP_NAME         = 'kijanikiosk-payments'
-        NEXUS_URL        = 'http://nexus:8081/repository/npm-kijanikiosk'
+        NODE_ENV  = 'test'
+        BUILD_DIR = 'payments/dist'
+        APP_NAME  = 'kijanikiosk-payments'
+        NEXUS_URL = 'http://nexus:8081/repository/npm-kijanikiosk'
     }
 
     options {
@@ -28,9 +27,11 @@ pipeline {
                     env.GIT_SHORT        = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     env.ARTIFACT_VERSION = "${env.PKG_VERSION}-${env.GIT_SHORT}"
                 }
+
                 echo "Building ${APP_NAME} version ${ARTIFACT_VERSION}..."
                 sh 'cd payments && npm ci'
                 sh 'cd payments && npm run build'
+
                 echo "Verifying build output..."
                 sh '''
                     set -e
@@ -44,16 +45,38 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh '''
-                    set -e
-                    cd payments && npm test
-                '''
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: 'test-results/*.xml'
+        stage('Verify') {
+            parallel {
+                stage('Test') {
+                    steps {
+                        sh '''
+                            set -e
+                            cd payments && npm test
+                        '''
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true, testResults: 'test-results/*.xml'
+                        }
+                    }
+                }
+
+                stage('Lint') {
+                    steps {
+                        sh '''
+                            set -e
+                            cd payments && npm run lint
+                        '''
+                    }
+                }
+
+                stage('Security Audit') {
+                    steps {
+                        sh '''
+                            set -e
+                            cd payments && npm audit --audit-level=high
+                        '''
+                    }
                 }
             }
         }
@@ -100,7 +123,7 @@ pipeline {
 
     post {
         success {
-            echo "Published ${APP_NAME} version ${ARTIFACT_VERSION} to Nexus"
+            echo "SUCCESS: ${APP_NAME} version ${ARTIFACT_VERSION} published to Nexus"
             echo "Artifact URL: ${NEXUS_URL}/kijanikiosk-payments/-/kijanikiosk-payments-${ARTIFACT_VERSION}.tgz"
         }
         failure {
