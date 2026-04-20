@@ -1,0 +1,247 @@
+Started by user unknown or anonymous
+Obtained Jenkinsfile from git https://github.com/rovenelabanga001/kijaniosk-devops-foundation.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins
+ in /var/jenkins_home/workspace/kijanikiosk-payments-pipeline
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/rovenelabanga001/kijaniosk-devops-foundation.git
+ > git init /var/jenkins_home/workspace/kijanikiosk-payments-pipeline # timeout=10
+Fetching upstream changes from https://github.com/rovenelabanga001/kijaniosk-devops-foundation.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/rovenelabanga001/kijaniosk-devops-foundation.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/rovenelabanga001/kijaniosk-devops-foundation.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 2cb93681bdbab496a112ad12db4692b1ba48914d (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2cb93681bdbab496a112ad12db4692b1ba48914d # timeout=10
+Commit message: "Merge pull request #15 from rovenelabanga001/feature/week5-ci-pipeline"
+ > git rev-list --no-walk 2cb93681bdbab496a112ad12db4692b1ba48914d # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ docker inspect -f . node@sha256:8789e1e0752d81088a085689c04fdb7a5b16e8102e353118a4b049bbf05db8ac
+.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] withDockerContainer
+Jenkins seems to be running inside container 976101e00f5a196a94221c1fd95edc098854d21e525d683e9f73fea54ce2a8f9
+$ docker run -t -d -u 1000:1000 -v /var/run/docker.sock:/var/run/docker.sock --network devops -w /var/jenkins_home/workspace/kijanikiosk-payments-pipeline --volumes-from 976101e00f5a196a94221c1fd95edc098854d21e525d683e9f73fea54ce2a8f9 -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** node@sha256:8789e1e0752d81088a085689c04fdb7a5b16e8102e353118a4b049bbf05db8ac cat
+$ docker top d315b111255616d211f4c4d082e64aeea8706be6358f631fdd63a56590bd7a3b -eo pid,comm
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timeout
+Timeout set to expire in 15 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Lint)
+[Pipeline] echo
+Running linter for kijanikiosk-payments...
+[Pipeline] sh
++ set -e
++ cd payments
++ npm ci --prefer-offline
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+added 327 packages, and audited 328 packages in 23s
+
+48 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
++ npm run lint
+
+> kijanikiosk-payments@1.0.0 lint
+> eslint src/
+
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
++ node -p require('./payments/package.json').version
+[Pipeline] sh
++ git rev-parse --short HEAD
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] echo
+Building kijanikiosk-payments version 1.0.0-2cb9368...
+[Pipeline] sh
++ cd payments
++ npm run build
+
+> kijanikiosk-payments@1.0.0 build
+> mkdir -p dist && cp -r src/* dist/
+
+[Pipeline] echo
+Verifying build output...
+[Pipeline] sh
++ set -e
++ [ ! -d payments/dist ]
++ ls payments/dist
++ wc -l
++ echo Build output: 1 files in payments/dist/
+Build output: 1 files in payments/dist/
++ ls -lh payments/dist/
+total 4.0K
+-rw-r--r-- 1 node node 786 Apr 20 12:17 index.js
+[Pipeline] echo
+Stashing build output...
+[Pipeline] stash
+Stashed 2 file(s)
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Verify)
+[Pipeline] parallel
+[Pipeline] { (Branch: Test)
+[Pipeline] { (Branch: Security Audit)
+[Pipeline] stage
+[Pipeline] { (Test)
+[Pipeline] stage
+[Pipeline] { (Security Audit)
+[Pipeline] echo
+Unstashing build output for tests...
+[Pipeline] unstash
+[Pipeline] sh
+[Pipeline] sh
++ set -e
++ cd payments
++ npm audit --audit-level=high
++ set -e
++ cd payments
++ npm test
+
+> kijanikiosk-payments@1.0.0 test
+> jest --ci
+
+found 0 vulnerabilities
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+PASS tests/payments.test.js
+  processPayment
+    ✓ returns success for valid payment (14 ms)
+    ✓ throws on invalid amount (33 ms)
+    ✓ throws when currency is missing (4 ms)
+  processRefund
+    ✓ returns refunded status for valid ref (15 ms)
+    ✓ throws when transaction ref is missing (3 ms)
+  generateReceipt
+    ✓ generates receipt for valid transaction (2 ms)
+    ✓ throws for invalid transaction (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        1.525 s
+Ran all test suites.
+Post stage
+[Pipeline] junit
+Recording test results
+No test report files were found. Configuration error?
+None of the test reports contained any result
+[Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // parallel
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Archive)
+[Pipeline] archiveArtifacts
+Archiving artifacts
+Recording fingerprints
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish)
+[Pipeline] withCredentials
+Masking supported pattern matches of $NEXUS_PASS
+[Pipeline] {
+[Pipeline] sh
++ set -e
++ echo -n admin:****
++ base64
++ NEXUS_TOKEN=YWRtaW46****
++ echo registry=http://nexus:8081/repository/npm-kijanikiosk/
++ echo //nexus:8081/repository/npm-kijanikiosk/:_auth=YWRtaW46****
++ echo //nexus:8081/repository/npm-kijanikiosk/:always-auth=true
++ echo //nexus:8081/repository/npm-kijanikiosk/:email=admin@kijanikiosk.com
++ trap rm -f payments/.npmrc EXIT
++ cd payments
++ npm version 1.0.0-2cb9368 --no-git-tag-version --allow-same-version
+v1.0.0-2cb9368
++ npm publish --registry http://nexus:8081/repository/npm-kijanikiosk/
+npm notice
+npm notice package: kijanikiosk-payments@1.0.0-2cb9368
+npm notice Tarball Contents
+npm notice 0B dist/.gitkeep
+npm notice 786B dist/index.js
+npm notice 341B eslint.config.mjs
+npm notice 441B package.json
+npm notice 786B src/index.js
+npm notice 1.4kB tests/payments.test.js
+npm notice Tarball Details
+npm notice name: kijanikiosk-payments
+npm notice version: 1.0.0-2cb9368
+npm notice filename: kijanikiosk-payments-1.0.0-2cb9368.tgz
+npm notice package size: 1.3 kB
+npm notice unpacked size: 3.8 kB
+npm notice shasum: bce35d4b654c6ca7c1b866a5104da9a0f98bd290
+npm notice integrity: sha512-dGNdwyEIKXvAr[...]UQDYI643JKs5w==
+npm notice total files: 6
+npm notice
+npm notice Publishing to http://nexus:8081/repository/npm-kijanikiosk/ with tag latest and default access
++ kijanikiosk-payments@1.0.0-2cb9368
++ rm -f payments/.npmrc
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] cleanWs
+[WS-CLEANUP] Deleting project workspace...
+[WS-CLEANUP] Deferred wipeout is used...
+[WS-CLEANUP] done
+[Pipeline] echo
+SUCCESS: kijanikiosk-payments version 1.0.0-2cb9368 published to Nexus
+[Pipeline] echo
+Artifact URL: http://nexus:8081/repository/npm-kijanikiosk/kijanikiosk-payments/-/kijanikiosk-payments-1.0.0-2cb9368.tgz
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+$ docker stop --time=1 d315b111255616d211f4c4d082e64aeea8706be6358f631fdd63a56590bd7a3b
+$ docker rm -f --volumes d315b111255616d211f4c4d082e64aeea8706be6358f631fdd63a56590bd7a3b
+[Pipeline] // withDockerContainer
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
