@@ -4,7 +4,7 @@
   "description": "KijaniKiosk payments service",
   "main": "src/index.js",
   "scripts": {
-    "build": "mkdir -p dist && cp --invalid-flag src/* dist/",
+    "build": "mkdir -p dist && cp -r src/* dist/",
     "test": "jest --ci",
     "lint": "eslint src/"
   },
