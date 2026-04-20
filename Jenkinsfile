@@ -99,7 +99,7 @@ pipeline {
         stage('Publish') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'nexus-credentials',
+                    credentialsId: 'nexus-credentials-wrong',
                     usernameVariable: 'NEXUS_USER',
                     passwordVariable: 'NEXUS_PASS'
                 )]) {
