@@ -44,3 +44,6 @@ describe('generateReceipt', () => {
 
   
 });
+test('ci-pipeline-verification: deliberate failure', () => {
+    expect(true).toBe(false); // Always fails
+});
