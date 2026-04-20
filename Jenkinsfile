@@ -5,7 +5,6 @@ pipeline {
         args '-v /var/run/docker.sock:/var/run/docker.sock'
     }
 }
-    }
 
     environment {
         NODE_ENV         = 'test'
@@ -43,7 +42,6 @@ pipeline {
                 '''
             }
         }
-}
 
         stage('Test') {
             steps {
