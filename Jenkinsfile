@@ -1,10 +1,10 @@
 pipeline {
     agent {
-        docker {
-            image 'node:20'
-            args '-v /var/run/docker.sock:/var/run/docker.sock --network devops'
-        }
+    docker {
+        image 'node@sha256:8789e1e0752d81088a085689c04fdb7a5b16e8102e353118a4b049bbf05db8ac'
+        args '-v /var/run/docker.sock:/var/run/docker.sock --network devops'
     }
+}
 
     environment {
         NODE_ENV  = 'test'
