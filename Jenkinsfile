@@ -29,12 +29,8 @@ pipeline {
                 }
 
                 echo "Building ${APP_NAME} version ${ARTIFACT_VERSION}..."
-                sh ''' 
-                    set -e
-                    cd payments 
-                    npm ci --invalid-flag-intentional
-                    npm run build
-                '''
+                sh 'cd payments && npm ci'
+                sh 'cd payments && npm run build'
 
                 echo "Verifying build output..."
                 sh '''
