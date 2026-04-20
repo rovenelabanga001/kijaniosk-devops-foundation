@@ -1,8 +1,5 @@
-this is not valid javascript???
 // KijaniKiosk Payments Service
 // Handles payment processing, refunds, and receipt generation.
-
-// Add a deliberate syntax error at the top of the file
 
 function processPayment(amount, currency) {
   if (!amount || amount <= 0) throw new Error('Invalid amount');
