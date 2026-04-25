@@ -11,6 +11,11 @@ pipeline {
         BUILD_DIR = 'payments/dist'
         APP_NAME  = 'kijanikiosk-payments'
         NEXUS_URL = 'http://nexus:8081/repository/npm-kijanikiosk'
+        BLUE_HOST = 'localhost'
+        BLUE_SSH_PORT = '2222'
+        GREEN_HOST = 'localhost'
+        GREEN_SSH_PORT = '2223'
+        DEPLOY_ENV = 'blue'
     }
 
     options {
@@ -126,11 +131,57 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'staging-ssh-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'nexus-credentials',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )
+                ]) {
+                    sh '''
+                        set -e
+
+                        echo "Deploying ${APP_NAME} ${ARTIFACT_VERSION} to ${DEPLOY_ENV}..."
+
+                        # Determine SSH port based on environment
+                        if [ "${DEPLOY_ENV}" = "blue" ]; then
+                            SSH_PORT="${BLUE_SSH_PORT}"
+                            SSH_HOST="${BLUE_HOST}"
+                        else
+                            SSH_PORT="${GREEN_SSH_PORT}"
+                            SSH_HOST="${GREEN_HOST}"
+                        fi
+
+                        # Run deploy script on target server via SSH
+                        ssh -i "${SSH_KEY}" \
+                            -o StrictHostKeyChecking=no \
+                            -p "${SSH_PORT}" \
+                            "${SSH_USER}@${SSH_HOST}" \
+                            "APP_VERSION=${ARTIFACT_VERSION} \
+                             DEPLOY_ENV=${DEPLOY_ENV} \
+                             ARTIFACT_BASE_URL=http://nexus:8081/repository/npm-kijanikiosk \
+                             NEXUS_USER=${NEXUS_USER} \
+                             NEXUS_PASS=${NEXUS_PASS} \
+                             bash /opt/kijanikiosk/scripts/deploy-app.sh"
+
+                        echo "Deployment to ${DEPLOY_ENV} complete."
+                    '''
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "SUCCESS: ${APP_NAME} version ${ARTIFACT_VERSION} published to Nexus"
+            echo "SUCCESS: ${APP_NAME} version ${ARTIFACT_VERSION} deployed to ${DEPLOY_ENV}"
             echo "Artifact URL: ${NEXUS_URL}/kijanikiosk-payments/-/kijanikiosk-payments-${ARTIFACT_VERSION}.tgz"
         }
         failure {
