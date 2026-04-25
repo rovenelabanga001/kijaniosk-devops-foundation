@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 const http = require('http');
-const { processPayment, processRefund, generateReceipt } = require('./index');
+const { processPayment } = require('./index');
 
 const APP_VERSION = process.env.APP_VERSION || '1.0.0';
 const PORT = parseInt(process.env.PORT || '3000', 10);
