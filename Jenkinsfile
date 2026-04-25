@@ -1,10 +1,10 @@
 pipeline {
     agent {
-        docker {
-            image 'node@sha256:8789e1e0752d81088a085689c04fdb7a5b16e8102e353118a4b049bbf05db8ac'
-            args '-v /var/run/docker.sock:/var/run/docker.sock --network devops'
-        }
+    docker {
+        image 'node@sha256:8789e1e0752d81088a085689c04fdb7a5b16e8102e353118a4b049bbf05db8ac'
+        args '-v /var/run/docker.sock:/var/run/docker.sock --network devops -v jenkins-npm-cache:/root/.npm'
     }
+}
 
     environment {
     NODE_ENV  = 'test'
@@ -19,7 +19,7 @@ pipeline {
 }
 
     options {
-        timeout(time: 15, unit: 'MINUTES')
+        timeout(time: 20, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
