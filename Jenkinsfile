@@ -7,16 +7,16 @@ pipeline {
     }
 
     environment {
-        NODE_ENV  = 'test'
-        BUILD_DIR = 'payments/dist'
-        APP_NAME  = 'kijanikiosk-payments'
-        NEXUS_URL = 'http://nexus:8081/repository/npm-kijanikiosk'
-        BLUE_HOST = 'localhost'
-        BLUE_SSH_PORT = '2222'
-        GREEN_HOST = 'localhost'
-        GREEN_SSH_PORT = '2223'
-        DEPLOY_ENV = 'blue'
-    }
+    NODE_ENV  = 'test'
+    BUILD_DIR = 'payments/dist'
+    APP_NAME  = 'kijanikiosk-payments'
+    NEXUS_URL = 'http://nexus:8081/repository/npm-kijanikiosk'
+    BLUE_HOST = '172.18.0.4'
+    BLUE_SSH_PORT = '22'
+    GREEN_HOST = '172.18.0.5'
+    GREEN_SSH_PORT = '22'
+    DEPLOY_ENV = 'blue'
+}
 
     options {
         timeout(time: 15, unit: 'MINUTES')
