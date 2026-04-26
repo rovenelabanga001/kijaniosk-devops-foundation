@@ -1,0 +1,186 @@
+=== POST-DEPLOY MONITOR START ===
+Sun Apr 26 05:45:14 PM UTC 2026
+Monitor started BEFORE switch — establishing baseline
+
+
+[17:45:19] ============================================================
+[17:45:19]   post-deploy-monitor.sh started
+[17:45:19]   Monitoring environment : blue
+[17:45:19]   Proxy health URL       : http://127.0.0.1:80/health
+[17:45:19]   Confidence window      : 60s
+[17:45:19]   Check interval         : 5s
+[17:45:19]   Max consecutive fails  : 3 (then rollback)
+[17:45:19] ============================================================
+
+[17:45:19] CHECK PASSED [0s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11728.178561844}
+[17:45:24] CHECK PASSED [5s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11733.228079349}
+[17:45:29] CHECK PASSED [10s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11738.273385831}
+[17:45:34] CHECK PASSED [15s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11743.318692842}
+[17:45:39] CHECK PASSED [20s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11748.363249969}
+[17:45:44] CHECK PASSED [25s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11753.407790967}
+[17:45:49] CHECK PASSED [30s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11758.453069109}
+[17:45:54] CHECK PASSED [35s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11763.502353477}
+[17:45:59] CHECK PASSED [40s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11768.549736233}
+[17:46:04] CHECK PASSED [45s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11773.594026947}
+[17:46:09] CHECK PASSED [50s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11778.637356263}
+[17:46:14] CHECK PASSED [55s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11783.679922948}
+
+[17:46:19] ============================================================
+[17:46:19]   CONFIDENCE WINDOW COMPLETE
+[17:46:19]   Duration  : 60s
+[17:46:19]   Checks    : 12/12 passed
+[17:46:19]   Environment blue is STABLE. No rollback needed.
+[17:46:19] ============================================================
+=== POST-DEPLOY MONITOR ===
+Monitor started BEFORE fault introduction
+Sun Apr 26 05:57:02 PM UTC 2026
+
+sh: can't open '/opt/kijanikiosk/scripts/post-deploy-monitor.sh': No such file or directory
+=== POST-DEPLOY MONITOR ===
+Monitor started BEFORE fault introduction
+Sun Apr 26 05:58:06 PM UTC 2026
+
+
+[17:58:06] ============================================================
+[17:58:06]   post-deploy-monitor.sh started
+[17:58:06]   Monitoring environment : green
+[17:58:06]   Proxy health URL       : http://127.0.0.1:80/health
+[17:58:06]   Confidence window      : 60s
+[17:58:06]   Check interval         : 5s
+[17:58:06]   Max consecutive fails  : 3 (then rollback)
+[17:58:06] ============================================================
+
+[17:58:06] CHECK PASSED [0s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":18166.691930747}
+[17:58:11] CHECK PASSED [5s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":18171.72502618}
+[17:58:16] CHECK PASSED [10s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":18176.752843476}
+=== FAULT INTRODUCTION ===
+T0 (fault introduced): 17:58:21
+[17:58:21] [WARN] CHECK FAILED [15s/60s] — consecutive failures: 1/3
+[17:58:31] [WARN] CHECK FAILED [20s/60s] — consecutive failures: 2/3
+[17:58:41] [WARN] CHECK FAILED [30s/60s] — consecutive failures: 3/3
+
+[17:58:41] ============================================================
+[17:58:41]   ROLLBACK THRESHOLD REACHED
+[17:58:41]   3 consecutive health check failures detected.
+[17:58:41]   Triggering automated rollback...
+[17:58:41]   T1 (rollback trigger): 17:58:41
+[17:58:41] ============================================================
+
+
+/opt/kijanikiosk/scripts/post-deploy-monitor.sh: line 101: bash: not found
+[17:58:41] [FAIL] ============================================================
+[17:58:41] [FAIL]   ROLLBACK FAILED — manual intervention required
+[17:58:41] [FAIL]   Run: sudo bash /opt/kijanikiosk/scripts/switch-env.sh blue
+[17:58:41] [FAIL] ============================================================
+
+=== ROLLBACK TEST (CLEAN RUN) ===
+Monitor started BEFORE fault introduction
+Sun Apr 26 06:07:42 PM UTC 2026
+
+
+[18:07:42] ============================================================
+[18:07:42]   post-deploy-monitor.sh started
+[18:07:42]   Monitoring environment : green
+[18:07:42]   Proxy health URL       : http://127.0.0.1:80/health
+[18:07:42]   Confidence window      : 60s
+[18:07:42]   Check interval         : 5s
+[18:07:42]   Max consecutive fails  : 3 (then rollback)
+[18:07:42] ============================================================
+
+[18:07:42] CHECK PASSED [0s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":55.897248385}
+[18:07:47] CHECK PASSED [5s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":60.924755606}
+T0 (fault introduced): 18:07:51
+[18:07:57] [WARN] CHECK FAILED [10s/60s] — consecutive failures: 1/3
+[18:08:07] [WARN] CHECK FAILED [20s/60s] — consecutive failures: 2/3
+[18:08:17] [WARN] CHECK FAILED [30s/60s] — consecutive failures: 3/3
+
+[18:08:17] ============================================================
+[18:08:17]   ROLLBACK THRESHOLD REACHED
+[18:08:17]   3 consecutive health check failures detected.
+[18:08:17]   Triggering automated rollback...
+[18:08:17]   T1 (rollback trigger): 18:08:17
+[18:08:17] ============================================================
+
+
+/opt/kijanikiosk/scripts/post-deploy-monitor.sh: line 101: bash: not found
+[18:08:17] [FAIL] ============================================================
+[18:08:17] [FAIL]   ROLLBACK FAILED — manual intervention required
+[18:08:17] [FAIL]   Run: sudo bash /opt/kijanikiosk/scripts/switch-env.sh blue
+[18:08:17] [FAIL] ============================================================
+
+=== ROLLBACK TEST (FINAL RUN) ===
+Sun Apr 26 06:10:04 PM UTC 2026
+
+
+[18:10:05] ============================================================
+[18:10:05]   post-deploy-monitor.sh started
+[18:10:05]   Monitoring environment : green
+[18:10:05]   Proxy health URL       : http://127.0.0.1:80/health
+[18:10:05]   Confidence window      : 60s
+[18:10:05]   Check interval         : 5s
+[18:10:05]   Max consecutive fails  : 3 (then rollback)
+[18:10:05] ============================================================
+
+[18:10:05] CHECK PASSED [0s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":18.131612639}
+[18:10:10] CHECK PASSED [5s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":23.159092683}
+[18:10:15] CHECK PASSED [10s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":28.185361754}
+[18:10:20] CHECK PASSED [15s/60s] — proxy healthy. Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":33.210957012}
+T0 (fault introduced): 18:10:20
+[18:10:30] [WARN] CHECK FAILED [20s/60s] — consecutive failures: 1/3
+[18:10:40] [WARN] CHECK FAILED [30s/60s] — consecutive failures: 2/3
+[18:10:50] [WARN] CHECK FAILED [40s/60s] — consecutive failures: 3/3
+
+[18:10:50] ============================================================
+[18:10:50]   ROLLBACK THRESHOLD REACHED
+[18:10:50]   3 consecutive health check failures detected.
+[18:10:50]   Triggering automated rollback...
+[18:10:50]   T1 (rollback trigger): 18:10:50
+[18:10:50] ============================================================
+
+[18:10:50] === Rollback initiated ===
+[18:10:50] Current environment:  green
+[18:10:50] Rolling back to:      blue
+[18:10:50] Calling switch-env.sh blue...
+[18:10:50] [+0s] Current environment: green
+[18:10:50] [+0s] Target environment:  blue
+[18:10:50] [+0s] Step 1: Verifying blue is healthy on port 3000...
+[18:10:50] [+0s] Pre-switch health check passed: blue is healthy
+[18:10:50] [+0s] Step 2: Writing new nginx active-env configuration...
+[18:10:50] [+0s] Written: /etc/nginx/kijanikiosk-active-env.conf
+[18:10:50] [+0s] Step 3: Validating nginx configuration...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[18:10:50] [+0s] nginx configuration is valid
+[18:10:50] [+0s] Step 4: Reloading nginx...
+2026/04/26 18:10:50 [notice] 643#643: signal process started
+[18:10:50] [+0s] nginx reloaded. Traffic now routing to blue.
+[18:10:50] [+0s] Step 5: Confirming switch via proxy health check...
+[18:10:51] [+1s] Post-switch confirmation passed: proxy is routing to blue
+[18:10:51] [+1s] Response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":13260.554153088}
+[18:10:51] [+1s] State files updated: active=blue, previous=green
+
+[18:10:51] [+1s] === Switch to blue complete ===
+[18:10:51] === Rollback to blue complete ===
+
+[18:10:53] ============================================================
+[18:10:53]   ROLLBACK COMPLETE
+[18:10:53]   T2 (rollback confirmed): 18:10:53
+[18:10:53]   Proxy response: {"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":13262.597494889}
+[18:10:53]   Active environment is now: blue
+[18:10:53] ============================================================
+
+=== TIMESTAMP SUMMARY ===
+T0 (fault introduced) : 18:10:20
+T1 (rollback trigger) : 18:10:50
+T2 (rollback confirmed): 18:10:53
+Total duration T0-T2  : 33 seconds (requirement: under 90 seconds) PASSED
+
+=== POST-ROLLBACK STATE VERIFICATION ===
+Sun Apr 26 06:11:46 PM UTC 2026
+--- Proxy health (must show df0cb4b / blue) ---
+{"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":13315.310565445}
+--- State files ---
+blue
+green
+
+=== rollback-evidence.txt complete ===
