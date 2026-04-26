@@ -1,0 +1,135 @@
+name: KijaniKiosk Payments Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  set-environment:
+    name: Set Environment
+    runs-on: self-hosted
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      artifact_version: ${{ steps.set-env.outputs.artifact_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        id: set-env
+        run: |
+          echo "environment=staging" >> $GITHUB_OUTPUT
+          echo "artifact_version=$(node -p "require('./payments/package.json').version")-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Print environment
+        run: |
+          echo "Environment: staging"
+          echo "Artifact version: ${{ steps.set-env.outputs.artifact_version }}"
+
+  deploy-app:
+    name: Deploy kijanikiosk-payments
+    needs: set-environment
+    runs-on: self-hosted
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_PRIVATE_KEY }}" > ~/.ssh/kijanikiosk_staging
+          chmod 600 ~/.ssh/kijanikiosk_staging
+
+      - name: Deploy to blue environment
+        run: |
+          ssh -i ~/.ssh/kijanikiosk_staging \
+              -o StrictHostKeyChecking=no \
+              -p 22 root@${{ vars.BLUE_HOST }} \
+              "APP_VERSION=${{ needs.set-environment.outputs.artifact_version }} \
+               DEPLOY_ENV=blue \
+               ARTIFACT_BASE_URL=http://nexus:8081/repository/npm-kijanikiosk \
+               NEXUS_USER=${{ secrets.NEXUS_USER }} \
+               NEXUS_PASS=${{ secrets.NEXUS_PASS }} \
+               bash /opt/kijanikiosk/scripts/deploy-app.sh"
+
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/kijanikiosk_staging
+
+  switch-traffic:
+    name: Switch Traffic to Green
+    needs: [set-environment, deploy-app]
+    if: needs.deploy-app.result == 'success'
+    runs-on: self-hosted
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_PRIVATE_KEY }}" > ~/.ssh/kijanikiosk_staging
+          chmod 600 ~/.ssh/kijanikiosk_staging
+
+      - name: Copy switch script to nginx container
+        run: |
+          docker cp scripts/switch-env.sh kk-nginx:/opt/kijanikiosk/scripts/switch-env.sh
+          docker exec kk-nginx chmod +x /opt/kijanikiosk/scripts/switch-env.sh
+
+      - name: Switch traffic to green
+        run: |
+          docker exec kk-nginx sh /opt/kijanikiosk/scripts/switch-env.sh green
+
+      - name: Verify traffic is on green
+        run: |
+          response=$(curl -sf --max-time 5 http://${{ vars.NGINX_HOST }}:80/health)
+          echo "Health response: ${response}"
+          echo "${response}" | grep -q "\"status\":\"ok\"" || {
+            echo "Health check failed after switch"
+            exit 1
+          }
+
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/kijanikiosk_staging
+
+  auto-rollback:
+    name: Auto Rollback
+    needs: [set-environment, deploy-app, switch-traffic]
+    if: failure() && needs.deploy-app.result == 'success'
+    runs-on: self-hosted
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy rollback script to nginx container
+        run: |
+          docker cp scripts/rollback.sh kk-nginx:/opt/kijanikiosk/scripts/rollback.sh
+          docker cp scripts/switch-env.sh kk-nginx:/opt/kijanikiosk/scripts/switch-env.sh
+          docker exec kk-nginx chmod +x /opt/kijanikiosk/scripts/rollback.sh
+          docker exec kk-nginx chmod +x /opt/kijanikiosk/scripts/switch-env.sh
+
+      - name: Run rollback
+        run: |
+          docker exec kk-nginx sh /opt/kijanikiosk/scripts/rollback.sh
+
+      - name: Verify rollback
+        run: |
+          response=$(curl -sf --max-time 5 http://${{ vars.NGINX_HOST }}:80/health)
+          echo "Health response after rollback: ${response}"
+          echo "${response}" | grep -q "\"status\":\"ok\"" || {
+            echo "Health check failed after rollback"
+            exit 1
+          }
+
+      - name: Notify rollback occurred
+        run: |
+          echo "ROLLBACK EXECUTED: Traffic switched back to previous environment"
+          echo "Check the switch-traffic job logs for the failure reason"
