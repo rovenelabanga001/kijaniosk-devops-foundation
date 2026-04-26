@@ -1,0 +1,73 @@
+=== STARTING STATE CONFIRMATION ===
+Sun Apr 26 05:44:30 PM UTC 2026
+--- Blue (port 3000) ---
+{"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11679.907880051}
+--- Green (port 3001) ---
+{"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":17351.118241473}
+--- Nginx proxy (port 80) ---
+{"status":"ok","version":"1.0.0-df0cb4b","port":3000,"uptime":11679.99603455}
+--- State files ---
+blue
+green
+
+=== SWITCH EXECUTION ===
+Sun Apr 26 05:47:35 PM UTC 2026
+[17:47:35] [+0s] Current environment: blue
+[17:47:35] [+0s] Target environment:  green
+[17:47:35] [+0s] Step 1: Verifying green is healthy on port 3000...
+[17:47:35] [+0s] Pre-switch health check passed: green is healthy
+[17:47:35] [+0s] Step 2: Writing new nginx active-env configuration...
+[17:47:35] [+0s] Written: /etc/nginx/kijanikiosk-active-env.conf
+[17:47:35] [+0s] Step 3: Validating nginx configuration...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[17:47:35] [+0s] nginx configuration is valid
+[17:47:35] [+0s] Step 4: Reloading nginx...
+2026/04/26 20:47:35 [notice] 673402#673402: signal process started
+2026/04/26 20:47:35 [error] 673402#673402: invalid PID number "" in "/run/nginx.pid"
+=== SWITCH EXECUTION (inside kk-nginx container) ===
+Sun Apr 26 05:51:32 PM UTC 2026
+OCI runtime exec failed: exec failed: unable to start container process: exec: "bash": executable file not found in $PATH
+=== SWITCH EXECUTION (inside kk-nginx container) ===
+Sun Apr 26 05:52:58 PM UTC 2026
+[17:52:58] [+0s] Current environment: blue
+[17:52:58] [+0s] Target environment:  green
+[17:52:58] [+0s] Step 1: Verifying green is healthy on port 3000...
+[17:52:58] [+0s] Pre-switch health check passed: green is healthy
+[17:52:58] [+0s] Step 2: Writing new nginx active-env configuration...
+[17:52:58] [+0s] Written: /etc/nginx/kijanikiosk-active-env.conf
+[17:52:58] [+0s] Step 3: Validating nginx configuration...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[17:52:58] [+0s] nginx configuration is valid
+[17:52:58] [+0s] Step 4: Reloading nginx...
+2026/04/26 17:52:58 [notice] 345#345: signal process started
+[17:52:58] [+0s] nginx reloaded. Traffic now routing to green.
+[17:52:58] [+0s] Step 5: Confirming switch via proxy health check...
+[17:52:59] [+1s] Post-switch confirmation passed: proxy is routing to green
+[17:52:59] [+1s] Response: {"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":17859.99037046}
+[17:52:59] [+1s] State files updated: active=green, previous=blue
+
+[17:52:59] [+1s] === Switch to green complete ===
+
+=== POST-SWITCH VERIFICATION ===
+Sun Apr 26 05:55:08 PM UTC 2026
+--- Proxy health (must show 355a1b3 / green) ---
+{"status":"ok","version":"1.0.0-355a1b3","port":3000,"uptime":17988.489209782}
+--- State files ---
+green
+blue
+
+--- nginx config (must reference kk-api-green) ---
+location / {
+    proxy_pass         http://kk-api-green;
+    proxy_http_version 1.1;
+    proxy_set_header   Host $host;
+    proxy_cache_bypass $http_upgrade;
+}
+
+location /health {
+    proxy_pass http://kk-api-green;
+}
+
+=== switch-cycle.log complete ===

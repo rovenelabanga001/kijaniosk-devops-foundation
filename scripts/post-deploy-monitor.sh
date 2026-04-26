@@ -98,7 +98,7 @@ while true; do
       echo ""
 
       # Fire rollback — this calls switch-env.sh internally
-      bash "${ROLLBACK_SCRIPT}" && rollback_ok=true || rollback_ok=false
+      sh "${ROLLBACK_SCRIPT}" && rollback_ok=true || rollback_ok=false
 
       echo ""
       if [ "${rollback_ok}" = "true" ]; then
