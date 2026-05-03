@@ -18,4 +18,5 @@ function generateReceipt(transaction) {
 }
 
 module.exports = { processPayment, processRefund, generateReceipt };
+
 # version marker
