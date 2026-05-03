@@ -17,4 +17,5 @@ function generateReceipt(transaction) {
   return { receipt: `RCP-${transaction.ref}`, amount: transaction.amount };
 }
 
-module.exports = { processPayment, processRefund, generateReceipt };# version marker
+module.exports = { processPayment, processRefund, generateReceipt };
+# version marker
