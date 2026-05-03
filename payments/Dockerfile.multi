@@ -1,0 +1,55 @@
+# ── Stage 1: Builder ──────────────────────────────────────────────────────────
+# Installs all dependencies (including dev), runs the build, and runs tests.
+# This stage never makes it into the final image.
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy manifests and install everything (dev deps needed for build and test)
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy source and build (copies src/* into dist/)
+COPY src/ ./src/
+RUN npm run build
+
+# Run tests — if they fail, the entire image build fails here
+COPY tests/ ./tests/
+RUN npm test
+
+
+# ── Stage 2: Production ───────────────────────────────────────────────────────
+# Fresh image — only what the app needs to run. No dev tools, no test files.
+FROM node:18-alpine AS production
+
+WORKDIR /app
+
+# Copy manifests and install production dependencies only
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+
+# Copy only the built output from the builder stage
+COPY --from=builder /app/dist/ ./dist/
+
+# Create a non-root group and user, then transfer ownership of /app
+RUN addgroup -S kijani && adduser -S kijani -G kijani
+RUN chown -R kijani:kijani /app
+
+
+# Switch to non-root user — all subsequent instructions run as kijani
+USER kijani
+
+
+# Expose the correct port for kk-payments
+EXPOSE 3000
+
+ENV PORT=3000
+ENV APP_VERSION=1.0.0
+
+HEALTHCHECK --interval=30s \
+            --timeout=5s \
+            --start-period=15s \
+            --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "dist/server.js"]
