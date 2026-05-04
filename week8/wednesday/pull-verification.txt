@@ -1,0 +1,65 @@
+=== Pull Verification ===
+Sun May  3 07:09:23 PM UTC 2026
+
+--- Pod events ---
+Name:             kk-payments-pulltest
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Sun, 03 May 2026 21:39:54 +0300
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.4
+IPs:
+  IP:  10.244.0.4
+Containers:
+  kk-payments:
+    Container ID:   docker://6cafb413af4df1a07b231fcb0e5214ebb4b5a5caac4f58ba05d727c03a2568bf
+    Image:          192.168.49.1:5000/kijani/kk-payments:1.0.0-64ba042
+    Image ID:       docker-pullable://192.168.49.1:5000/kijani/kk-payments@sha256:fc594e6a8b390cbfe04aa374f11c1da71adb7083ec09cebb98d0a24bc964de06
+    Port:           3000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sun, 03 May 2026 21:40:04 +0300
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pkpsw (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-pkpsw:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  29m   default-scheduler  Successfully assigned default/kk-payments-pulltest to minikube
+  Normal  Pulling    29m   kubelet            spec.containers{kk-payments}: Pulling image "192.168.49.1:5000/kijani/kk-payments:1.0.0-64ba042"
+  Normal  Pulled     29m   kubelet            spec.containers{kk-payments}: Successfully pulled image "192.168.49.1:5000/kijani/kk-payments:1.0.0-64ba042" in 7.552s (7.552s including waiting). Image size: 127349076 bytes.
+  Normal  Created    29m   kubelet            spec.containers{kk-payments}: Container created
+  Normal  Started    29m   kubelet            spec.containers{kk-payments}: Container started
+
+--- Non-root user verification ---
+whoami output: kijani
+
+--- ImagePullSecret ---
+NAME                          TYPE                             DATA   AGE
+kijani-registry-credentials   kubernetes.io/dockerconfigjson   1      35m
+
+=== Verification complete ===

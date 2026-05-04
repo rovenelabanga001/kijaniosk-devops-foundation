@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kk-payments
+  labels:
+    app: kk-payments
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kk-payments        # Must match template labels exactly
+  template:
+    metadata:
+      labels:
+        app: kk-payments      # Must match selector above
+        version: "1.0.0"      # Additional labels are fine
+    spec:
+      imagePullSecrets:
+      - name: kijani-registry-credentials   # References the secret by name (safe to commit)
+      containers:
+      - name: kk-payments
+        image: 192.168.49.1:5000/kijani/kk-payments:1.0.0-2160f57
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: APP_VERSION
+          value: "1.0.0"
+        resources:
+          requests:
+            memory: "64Mi"    # Minimum memory Kubernetes reserves for this Pod
+            cpu: "100m"       # 100 millicores = 0.1 CPU core
+          limits:
+            memory: "128Mi"   # Container is killed if it exceeds this
+            cpu: "250m"       # Container is throttled if it exceeds this
