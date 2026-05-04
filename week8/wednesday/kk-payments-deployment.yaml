@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kk-payments
+  labels:
+    app: kk-payments
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kk-payments
+
+  template:
+    metadata:
+      labels:
+        app: kk-payments
+        version: "1.0.0"
+
+    spec:
+      imagePullSecrets:
+        - name: kijani-registry-credentials
+      containers:
+        - name: kk-payments
+          image: 192.168.49.1:5000/kijani/kk-payments:1.0.0-64ba042
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: APP_VERSION
+              value: "1.0.0"

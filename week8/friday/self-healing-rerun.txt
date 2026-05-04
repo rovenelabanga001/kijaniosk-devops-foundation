@@ -1,0 +1,28 @@
+=== Self-Healing Rerun ===
+Mon May  4 06:40:56 AM UTC 2026
+
+--- Pod names before deletion ---
+NAME                          READY   STATUS    RESTARTS   AGE
+kk-payments-f66f87fcf-bcg8z   1/1     Running   0          7m38s
+kk-payments-f66f87fcf-v2kff   1/1     Running   0          7m38s
+
+T0 (fault introduced): 06:40:57 — deleting pod/kk-payments-f66f87fcf-bcg8z
+pod "kk-payments-f66f87fcf-bcg8z" deleted from default namespace
+
+--- Watching replacement Pod ---
+NAME                          READY   STATUS    RESTARTS   AGE
+kk-payments-f66f87fcf-dzhzj   1/1     Running   0          32s
+kk-payments-f66f87fcf-v2kff   1/1     Running   0          8m12s
+
+T1 (replacement running): 06:42:52
+
+--- Pod names after replacement (must differ from before) ---
+NAME                          READY   STATUS    RESTARTS   AGE
+kk-payments-f66f87fcf-dzhzj   1/1     Running   0          115s
+kk-payments-f66f87fcf-v2kff   1/1     Running   0          9m35s
+
+--- Deployment status after self-healing ---
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+kk-payments   2/2     2            2           9m35s
+
+=== Self-healing rerun complete ===

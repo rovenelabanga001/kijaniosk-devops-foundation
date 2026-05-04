@@ -1,0 +1,53 @@
+=== Registry Push ===
+Mon May  4 06:29:01 AM UTC 2026
+
+--- Version string ---
+PKG_VERSION: 1.0.0
+GIT_SHORT:   2160f57
+IMAGE_TAG:   1.0.0-2160f57
+
+--- Tag ---
+
+--- Push ---
+The push refers to repository [localhost:5000/kijani/kk-payments]
+823d39e48892: Preparing
+50ff9b8ab1e1: Preparing
+c564c5c7f4e8: Preparing
+5448a8e8a978: Preparing
+ea8a12783bd0: Preparing
+392133e04ee3: Preparing
+82140d9a70a7: Preparing
+f3b40b0cdb1c: Preparing
+0b1f26057bd0: Preparing
+08000c18d16d: Preparing
+82140d9a70a7: Waiting
+392133e04ee3: Waiting
+f3b40b0cdb1c: Waiting
+0b1f26057bd0: Waiting
+08000c18d16d: Waiting
+5448a8e8a978: Pushed
+50ff9b8ab1e1: Pushed
+ea8a12783bd0: Pushed
+c564c5c7f4e8: Pushed
+823d39e48892: Pushed
+392133e04ee3: Layer already exists
+82140d9a70a7: Layer already exists
+0b1f26057bd0: Layer already exists
+f3b40b0cdb1c: Layer already exists
+08000c18d16d: Layer already exists
+1.0.0-2160f57: digest: sha256:ead9c1ffefdbda2ab06dc801d1659dda159879c10c23d1b3d6ea8c3e79b1a594 size: 2404
+
+--- Delete local copy ---
+Untagged: localhost:5000/kijani/kk-payments:1.0.0-2160f57
+Untagged: localhost:5000/kijani/kk-payments@sha256:ead9c1ffefdbda2ab06dc801d1659dda159879c10c23d1b3d6ea8c3e79b1a594
+
+--- Pull from registry ---
+1.0.0-2160f57: Pulling from kijani/kk-payments
+Digest: sha256:ead9c1ffefdbda2ab06dc801d1659dda159879c10c23d1b3d6ea8c3e79b1a594
+Status: Downloaded newer image for localhost:5000/kijani/kk-payments:1.0.0-2160f57
+localhost:5000/kijani/kk-payments:1.0.0-2160f57
+
+--- Registry tags ---
+{"name":"kijani/kk-payments","tags":["1.0.0-64ba042","1.0.0-2160f57","1.0.0-6f1faaf"]}
+
+=== Registry push complete ===

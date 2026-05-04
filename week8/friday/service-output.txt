@@ -1,0 +1,19 @@
+=== Service Output ===
+Mon May  4 06:37:39 AM UTC 2026
+
+--- Service ---
+NAME                  TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kk-payments-service   NodePort   10.104.69.163   <none>        3001:30001/TCP   9s
+
+--- Endpoints (must show two Pod IPs, not none) ---
+NAME                  ENDPOINTS                         AGE
+kk-payments-service   10.244.0.7:3000,10.244.0.8:3000   9s
+
+--- External health check via NodePort ---
+{"status":"ok","version":"1.0.0","port":3000,"uptime":258.075526157}
+=== Service verification complete ===
+
+--- In-cluster DNS check ---
+{"status":"ok","version":"1.0.0","port":3000,"uptime":367.718372308}
+DNS name: kk-payments-service.default.svc.cluster.local:3001/health
+=== In-cluster DNS verified ===
