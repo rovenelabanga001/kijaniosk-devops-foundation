@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  APP_PORT: "3000"
+  DB_HOST: postgres-prod.kijani.internal
+  DB_PORT: "5432"
+  LOG_LEVEL: warn
+  MAX_CONNECTIONS: "10"
+  NODE_ENV: production
+kind: ConfigMap
+metadata:
+  name: kk-payments-config
